@@ -2,12 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import { connect } from "react-redux";
+import Web3Connect from "web3connect";
 import BaseLayout from "../layouts/base";
-import Button from "../components/Button";
 import Column from "../components/Column";
-import { metamaskConnectInit } from "../reducers/_metamask";
-import { portisConnectInit } from "../reducers/_portis";
-import { fonts } from "../styles";
+import { accountInit } from "../reducers/_account";
 
 const StyledLanding = styled.div`
   width: 100%;
@@ -23,14 +21,6 @@ const StyledButtonContainer = styled(Column)`
   margin: 50px 0;
 `;
 
-const StyledConnectButton = styled(Button)`
-  border-radius: 8px;
-  font-size: ${fonts.size.medium};
-  height: 44px;
-  width: 100%;
-  margin: 12px 0;
-`;
-
 class Home extends Component {
   render = () => (
     <BaseLayout>
@@ -41,20 +31,20 @@ class Home extends Component {
           and trade it as an NFT
         </h1>
         <StyledButtonContainer>
-          <StyledConnectButton
-            left
-            color="orange"
-            onClick={this.props.metamaskConnectInit}
-          >
-            {"Connect to Metamask"}
-          </StyledConnectButton>
-          <StyledConnectButton
-            left
-            color="portis"
-            onClick={this.props.portisConnectInit}
-          >
-            {"Connect to Portis"}
-          </StyledConnectButton>
+          <Web3Connect.Button
+            providerOptions={{
+              portis: {
+                id: process.env.REACT_APP_PORTIS_ID,
+                network: "mainnet"
+              },
+              fortmatic: {
+                key: process.env.REACT_APP_FORTMATIC_KEY
+              }
+            }}
+            onConnect={provider => {
+              this.props.accountInit(provider);
+            }}
+          />
         </StyledButtonContainer>
       </StyledLanding>
     </BaseLayout>
@@ -62,14 +52,12 @@ class Home extends Component {
 }
 
 Home.propTypes = {
-  metamaskConnectInit: PropTypes.func.isRequired,
-  portisConnectInit: PropTypes.func.isRequired
+  accountInit: PropTypes.func.isRequired
 };
 
 export default connect(
   null,
   {
-    metamaskConnectInit,
-    portisConnectInit
+    accountInit
   }
 )(Home);

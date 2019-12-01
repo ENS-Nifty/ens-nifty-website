@@ -1,4 +1,5 @@
-import { getLocal } from './localstorage';
+import { getLocal } from "./localstorage";
+import networks from "../ref/networks.json";
 
 /**
  * @desc debounce api request
@@ -27,9 +28,9 @@ export const debounceRequest = (request, params, timeout) =>
  */
 export const capitalize = string =>
   string
-    .split(' ')
+    .split(" ")
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
+    .join(" ");
 
 /**
  * @desc ellipse text to max maxLength
@@ -37,14 +38,14 @@ export const capitalize = string =>
  * @param  {Number}  [maxLength = 9999]
  * @return {String}
  */
-export const ellipseText = (text = '', maxLength = 9999) => {
+export const ellipseText = (text = "", maxLength = 9999) => {
   if (text.length <= maxLength) return text;
   const _maxLength = maxLength - 3;
   let ellipse = false;
   let currentLength = 0;
   const result =
     text
-      .split(' ')
+      .split(" ")
       .filter(word => {
         currentLength += word.length;
         if (ellipse || currentLength >= _maxLength) {
@@ -54,7 +55,7 @@ export const ellipseText = (text = '', maxLength = 9999) => {
           return true;
         }
       })
-      .join(' ') + '...';
+      .join(" ") + "...";
   return result;
 };
 
@@ -63,7 +64,7 @@ export const ellipseText = (text = '', maxLength = 9999) => {
  * @param  {String}  [address = '']
  * @return {String}
  */
-export const ellipseAddress = (address = '') =>
+export const ellipseAddress = (address = "") =>
   `${address.slice(0, 10)}...${address.slice(-10)}`;
 
 /**
@@ -74,8 +75,8 @@ export const ellipseAddress = (address = '') =>
  * @return {String}
  */
 export const padLeft = (n, width, z) => {
-  z = z || '0';
-  n = n + '';
+  z = z || "0";
+  n = n + "";
   return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 };
 
@@ -85,10 +86,10 @@ export const padLeft = (n, width, z) => {
  * @return {String}
  */
 export const sanitizeHex = hex => {
-  hex = hex.substring(0, 2) === '0x' ? hex.substring(2) : hex;
-  if (hex === '') return '';
-  hex = hex.length % 2 !== 0 ? '0' + hex : hex;
-  return '0x' + hex;
+  hex = hex.substring(0, 2) === "0x" ? hex.substring(2) : hex;
+  if (hex === "") return "";
+  hex = hex.length % 2 !== 0 ? "0" + hex : hex;
+  return "0x" + hex;
 };
 
 /**
@@ -96,7 +97,7 @@ export const sanitizeHex = hex => {
  * @param  {String} hex
  * @return {String}
  */
-export const removeHexPrefix = hex => hex.toLowerCase().replace('0x', '');
+export const removeHexPrefix = hex => hex.toLowerCase().replace("0x", "");
 
 /**
  * @desc get ethereum contract call data string
@@ -105,7 +106,7 @@ export const removeHexPrefix = hex => hex.toLowerCase().replace('0x', '');
  * @return {String}
  */
 export const getDataString = (func, arrVals) => {
-  let val = '';
+  let val = "";
   for (let i = 0; i < arrVals.length; i++) val += padLeft(arrVals[i], 64);
   const data = func + val;
   return data;
@@ -119,14 +120,14 @@ export const getDataString = (func, arrVals) => {
  */
 export const getUrlParameter = (
   parameter,
-  url = typeof window !== 'undefined' ? window.location.href : ''
+  url = typeof window !== "undefined" ? window.location.href : ""
 ) => {
-  let name = parameter.replace(/[[]]/g, '\\$&');
-  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  let name = parameter.replace(/[[]]/g, "\\$&");
+  const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
   const results = regex.exec(url);
   if (!results) return null;
-  if (!results[2]) return '';
-  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  if (!results[2]) return "";
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
 };
 
 /**
@@ -135,28 +136,28 @@ export const getUrlParameter = (
  * @return {String}
  */
 export const parseError = error => {
-  const generic_error = 'Something went wrong!';
+  const generic_error = "Something went wrong!";
 
   if (error) {
     const msgEnd =
-      error.message.indexOf('\n') !== -1
-        ? error.message.indexOf('\n')
+      error.message.indexOf("\n") !== -1
+        ? error.message.indexOf("\n")
         : error.message.length;
     let message = error.message.slice(0, msgEnd);
     if (
-      error.message.includes('MetaMask') ||
-      error.message.includes('Returned error:')
+      error.message.includes("MetaMask") ||
+      error.message.includes("Returned error:")
     ) {
       message = message
-        .replace('Error: ', '')
-        .replace('MetaMask ', '')
-        .replace('Returned error: ', '');
+        .replace("Error: ", "")
+        .replace("MetaMask ", "")
+        .replace("Returned error: ", "");
       message =
         message.slice(0, 1).toUpperCase() + message.slice(1).toLowerCase();
 
       console.error(new Error(message));
       return message;
-    } else if (message.indexOf('0x6801') !== -1) {
+    } else if (message.indexOf("0x6801") !== -1) {
       message = generic_error;
     }
     console.error(error);
@@ -171,9 +172,9 @@ export const parseError = error => {
  * @return {String}
  */
 export const formatENSDomain = name => {
-  if (name.endsWith('.eth')) {
+  if (name.endsWith(".eth")) {
     return name;
-  } else return name + '.eth';
+  } else return name + ".eth";
 };
 
 /**
@@ -181,14 +182,47 @@ export const formatENSDomain = name => {
  * @param   {String}  labelHash
  * @return  {String}
  */
-export const getLocalDomainFromLabelHash = (labelHash = '') => {
-  const localDomains = getLocal('domains') || [];
+export const getLocalDomainFromLabelHash = (labelHash = "") => {
+  const localDomains = getLocal("domains") || [];
   const savedData = localDomains.filter(
     domainData => domainData.labelHash === labelHash
   );
-  let domain = '';
+  let domain = "";
   if (savedData.length) {
     domain = savedData[0].domain;
   }
   return domain;
 };
+
+/**
+ * @desc get network string
+ * @param   {Number} networkId
+ * @return  {String}
+ */
+export const getNetworkString = networkId => {
+  let networkIdList = {};
+  Object.keys(networks).forEach(network => {
+    networkIdList[networks[network].id] = network;
+  });
+  return networkIdList[Number(networkId)] || "";
+};
+
+/**
+ * @desc get network id
+ * @param   {String} network
+ * @return  {Number}
+ */
+export const getNetworkId = network => {
+  return networks[network].id;
+};
+
+/**
+ * @desc generate payload id
+ * @return  {String}
+ */
+export function payloadId() {
+  const datePart = new Date().getTime() * Math.pow(10, 3);
+  const extraPart = Math.floor(Math.random() * Math.pow(10, 3));
+  const id = datePart + extraPart;
+  return id;
+}

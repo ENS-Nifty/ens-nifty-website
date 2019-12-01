@@ -1,11 +1,14 @@
-import { apiGetTransaction } from "../helpers/api";
-import { parseError, getLocalDomainFromLabelHash } from "../helpers/utilities";
+import Web3 from "web3";
+import { apiGetTransactionReceipt } from "../helpers/api";
+import {
+  parseError,
+  getLocalDomainFromLabelHash,
+  getNetworkId
+} from "../helpers/utilities";
 import { web3SetHttpProvider, web3Instance } from "../helpers/web3";
 import { notificationShow } from "./_notification";
 import { labelHashToName } from "../helpers/contracts/registrar";
 import { getTokensOwned } from "../helpers/contracts/nifty";
-import { metamaskClearState } from "./_metamask";
-import { portisClearState } from "./_portis";
 
 // -- Constants ------------------------------------------------------------- //
 
@@ -35,22 +38,16 @@ const ACCOUNT_CLEAR_STATE = "account/ACCOUNT_CLEAR_STATE";
 
 // -- Actions --------------------------------------------------------------- //
 
-export const accountCheckTransactionStatus = (txHash, network) => (
+export const accountCheckTransactionStatus = async (txHash, network) => (
   dispatch,
   getState
 ) => {
   dispatch({ type: ACCOUNT_CHECK_TRANSACTION_STATUS_REQUEST });
   const network = getState().account.network;
-
-  apiGetTransaction(txHash, network)
-    .then(response => {
-      const data = response.data;
-      if (
-        data &&
-        !data.error &&
-        (data.input === "0x" ||
-          (data.input !== "0x" && data.operations && data.operations.length))
-      ) {
+  const chainId = getNetworkId(network);
+  apiGetTransactionReceipt(txHash, chainId)
+    .then(result => {
+      if (result && result.status !== "0x0") {
         dispatch({
           type: ACCOUNT_CHECK_TRANSACTION_STATUS_SUCCESS
         });
@@ -70,6 +67,24 @@ export const accountCheckTransactionStatus = (txHash, network) => (
       const message = parseError(error);
       dispatch(notificationShow(message, true));
     });
+};
+
+export const accountInit = provider => dispatch => {
+  console.log("[accountInit] provider", provider);
+  const web3 = new Web3(provider);
+  const network = "mainnet";
+  web3.eth.getAccounts((err, accounts) => {
+    if (err) {
+      return;
+    }
+    const accountAddress = accounts[0];
+    console.log("[getAccounts] accounts", accounts);
+    web3.eth.defaultAccount = accountAddress;
+    dispatch(accountUpdateWeb3(web3));
+    dispatch(accountUpdateAccountAddress(accountAddress, "WEB3CONNECT"));
+    dispatch(accountUpdateNetwork(network));
+    window.browserHistory.push("/domains");
+  });
 };
 
 export const accountUpdateNetwork = network => dispatch => {
@@ -94,19 +109,6 @@ export const accountUpdateAccountAddress = (address, type) => (
 };
 
 export const accountClearState = () => (dispatch, getState) => {
-  const { type } = getState().account;
-  if (type) {
-    switch (type) {
-      case "METAMASK":
-        dispatch(metamaskClearState());
-        break;
-      case "PORTIS":
-        dispatch(portisClearState());
-        break;
-      default:
-        break;
-    }
-  }
   dispatch({ type: ACCOUNT_CLEAR_STATE });
 };
 

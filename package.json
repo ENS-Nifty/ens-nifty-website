@@ -30,7 +30,8 @@
     "styled-components": "^3.4.2",
     "twit": "^2.2.11",
     "web3": "1.0.0-beta.36",
-    "web3-utils": "^1.0.0-beta.36"
+    "web3-utils": "^1.0.0-beta.36",
+    "web3connect": "^1.0.0-beta.14"
   },
   "scripts": {
     "bootstrap": "node ./scripts/bootstrap-fauna-database.js",

@@ -120,12 +120,10 @@ const StyledLink = styled.a`
 
 const BaseLayout = ({
   children,
-  metamaskFetching,
   accountType,
   accountAddress,
   accountClearState,
   network,
-  web3Available,
   online,
   modalOpen,
   ...props
@@ -193,21 +191,17 @@ const BaseLayout = ({
 BaseLayout.propTypes = {
   children: PropTypes.node.isRequired,
   accountClearState: PropTypes.func.isRequired,
-  metamaskFetching: PropTypes.bool.isRequired,
   accountType: PropTypes.string.isRequired,
   accountAddress: PropTypes.string.isRequired,
   network: PropTypes.string.isRequired,
-  web3Available: PropTypes.bool.isRequired,
   online: PropTypes.bool.isRequired
 };
 
-const reduxProps = ({ account, metamask, warning }) => ({
+const reduxProps = ({ account, warning }) => ({
   accountType: account.type,
   accountAddress: account.address,
   nativeCurrency: account.nativeCurrency,
-  metamaskFetching: metamask.fetching,
   network: account.network,
-  web3Available: metamask.web3Available,
   online: warning.online
 });
 
